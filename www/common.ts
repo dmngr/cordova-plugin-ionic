@@ -4,7 +4,7 @@
 /// <reference types="cordova" />
 
 declare const cordova: Cordova;
-declare const resolveLocalFileSystemURL: Window['resolveLocalFileSystemURL'] ;
+declare const resolveLocalFileSystemURL: Window['resolveLocalFileSystemURL'];
 declare const Ionic: any;
 declare const WEBVIEW_SERVER_URL: string;
 
@@ -32,16 +32,16 @@ import {
 
 
 class Path {
-    static join(...paths: string[]): string {
-        let fullPath: string = paths.shift() || '';
-        for (const path of paths) {
-            if (fullPath && fullPath.slice(-1) !== '/') {
-                fullPath += '/';
-            }
-            fullPath = path.slice(0, 1) !== '/' ? fullPath + path : fullPath + path.slice(1);
-        }
-        return fullPath;
+  static join(...paths: string[]): string {
+    let fullPath: string = paths.shift() || '';
+    for (const path of paths) {
+      if (fullPath && fullPath.slice(-1) !== '/') {
+        fullPath += '/';
+      }
+      fullPath = path.slice(0, 1) !== '/' ? fullPath + path : fullPath + path.slice(1);
     }
+    return fullPath;
+  }
 
 }
 
@@ -99,7 +99,7 @@ class IonicDeployImpl {
         // NOTE: default anything that doesn't explicitly match to background updates
         await this.reloadApp();
         try {
-            this.sync({updateMethod: UpdateMethod.BACKGROUND});
+          this.sync({updateMethod: UpdateMethod.BACKGROUND});
         } catch (e) {
           console.warn(e);
           console.warn('Background sync failed. Unable to check for new updates.');
@@ -160,7 +160,7 @@ class IonicDeployImpl {
       manifest: true
     };
 
-    const timeout = new Promise( (resolve, reject) => {
+    const timeout = new Promise((resolve, reject) => {
       setTimeout(reject, 5000, 'Request timed out. The device maybe offline.');
     });
     const request = fetch(endpoint, {
@@ -200,10 +200,11 @@ class IonicDeployImpl {
   async downloadUpdate(progress?: CallbackFunction<number>): Promise<boolean> {
     const prefs = this._savedPreferences;
     if (prefs.availableUpdate && prefs.availableUpdate.state === UpdateState.Available) {
-      const { fileBaseUrl, manifestJson } = await this._fetchManifest(prefs.availableUpdate.url);
+      const {fileBaseUrl, manifestJson} = await this._fetchManifest(prefs.availableUpdate.url);
       const diffedManifest = await this._diffManifests(manifestJson);
+      console.log("diffedManifest", diffedManifest);
       await this.prepareUpdateDirectory(prefs.availableUpdate.versionId);
-      await this._downloadFilesFromManifest(fileBaseUrl, diffedManifest,  prefs.availableUpdate.versionId, progress);
+      await this._downloadFilesFromManifest(fileBaseUrl, diffedManifest, prefs.availableUpdate.versionId, progress);
       prefs.availableUpdate.state = UpdateState.Pending;
       await this._savePrefs(prefs);
       return true;
@@ -299,7 +300,7 @@ class IonicDeployImpl {
   }
 
   private async hideSplash(): Promise<string> {
-    return new Promise<string>( (resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
       cordova.exec(resolve, reject, 'IonicCordovaCommon', 'clearSplashFlag');
     });
   }
@@ -376,11 +377,11 @@ class IonicDeployImpl {
   }
 
   private async _getServerBasePath(): Promise<string> {
-    return new Promise<string>( async (resolve, reject) => {
+    return new Promise<string>(async (resolve, reject) => {
       try {
         Ionic.WebView.getServerBasePath(resolve);
       } catch (e) {
-       reject(e);
+        reject(e);
       }
     });
   }
@@ -390,7 +391,7 @@ class IonicDeployImpl {
     const snapshotDir = this.getSnapshotCacheDir(versionId);
     try {
       const dirEntry = await this._fileManager.getDirectory(snapshotDir, false);
-      await (new Promise( (resolve, reject) => dirEntry.removeRecursively(resolve, reject)));
+      await (new Promise((resolve, reject) => dirEntry.removeRecursively(resolve, reject)));
       timer.end();
     } catch (e) {
       console.log('No directory found for snapshot no need to delete');
@@ -400,11 +401,14 @@ class IonicDeployImpl {
 
   private async _copyBaseAppDir(versionId: string) {
     const timer = new Timer('CopyBaseApp');
-    return new Promise( async (resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
         const rootAppDirEntry = await this._fileManager.getDirectory(this.getBundledAppDir(), false);
         const snapshotCacheDirEntry = await this._fileManager.getDirectory(this.getSnapshotCacheDir(''), true);
-        rootAppDirEntry.copyTo(snapshotCacheDirEntry, versionId, () => { timer.end(); resolve(); }, reject);
+        rootAppDirEntry.copyTo(snapshotCacheDirEntry, versionId, () => {
+          timer.end();
+          resolve();
+        }, reject);
       } catch (e) {
         reject(e);
       }
@@ -613,7 +617,6 @@ class FileManager {
 }
 
 
-
 class IonicDeploy implements IDeployPluginAPI {
   private parent: IPluginBaseAPI;
   private delegate: Promise<IonicDeployImpl>;
@@ -643,7 +646,7 @@ class IonicDeploy implements IDeployPluginAPI {
         disabledMessage = 'Fetch is unavailable so ' + disabledMessage;
       }
       console.warn(disabledMessage);
-      await new Promise<string>( (resolve, reject) => {
+      await new Promise<string>((resolve, reject) => {
         cordova.exec(resolve, reject, 'IonicCordovaCommon', 'clearSplashFlag');
       });
     } else {
@@ -671,10 +674,11 @@ class IonicDeploy implements IDeployPluginAPI {
   }
 
   private async timeoutPromise(delay: number): Promise<undefined> {
-    return new Promise<undefined>( (resolve, reject) => {
+    return new Promise<undefined>((resolve, reject) => {
       setTimeout(reject, delay);
     });
   }
+
   private async deviceReadyPromise(): Promise<undefined> {
     return new Promise<undefined>((resolve, reject) => {
       if (window.cordova) {
@@ -720,7 +724,7 @@ class IonicDeploy implements IDeployPluginAPI {
     if (!this.disabled) {
       return (await this.delegate).checkForUpdate();
     }
-    return  {available: false, compatible: false, partial: false};
+    return {available: false, compatible: false, partial: false};
   }
 
   async configure(config: IDeployConfig): Promise<void> {
@@ -823,7 +827,7 @@ class IonicCordova implements IPluginBaseAPI {
   }
 
   async getAppDetails(): Promise<IAppInfo> {
-    return new Promise<IAppInfo>( (resolve, reject) => {
+    return new Promise<IAppInfo>((resolve, reject) => {
       cordova.exec(resolve, reject, 'IonicCordovaCommon', 'getAppInfo');
     });
   }
@@ -833,6 +837,7 @@ class Timer {
   name: string;
   startTime: Date;
   lastTime: Date;
+
   constructor(name: string) {
     this.name = name;
     this.startTime = new Date();
