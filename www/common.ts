@@ -202,7 +202,7 @@ class IonicDeployImpl {
     if (prefs.availableUpdate && prefs.availableUpdate.state === UpdateState.Available) {
       const {fileBaseUrl, manifestJson} = await this._fetchManifest(prefs.availableUpdate.url);
       const diffedManifest = await this._diffManifests(manifestJson);
-      console.log("diffedManifest", diffedManifest);
+      console.log('diffedManifest', diffedManifest);
       await this.prepareUpdateDirectory(prefs.availableUpdate.versionId);
       await this._downloadFilesFromManifest(fileBaseUrl, diffedManifest, prefs.availableUpdate.versionId, progress);
       prefs.availableUpdate.state = UpdateState.Pending;
